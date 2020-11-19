@@ -71,7 +71,7 @@ void setup() {
 volatile byte latchinput = 0;
 byte safelatchinput = 0;
 byte rotmoving = 0;
-
+byte safeRotMoving = 0;
 void ai1() {
   rotmoving=0;
   if (latchinput==0){
@@ -165,10 +165,12 @@ void loop() {
   noInterrupts();
     // critical, time-sensitive code here
     counter=temp;
+    
     if(counter>0 ){
 
       latchinput = 1;
       safelatchinput=1;
+      safeRotMoving = rotmoving;
       #ifdef DEBUGSERIAL
 
         Serial.print(millis());
@@ -185,6 +187,7 @@ void loop() {
     }else if(counter<0){
       latchinput = 1;
       safelatchinput=1;
+      safeRotMoving = rotmoving;
       #ifdef DEBUGSERIAL
         Serial.print(millis());
 
@@ -205,9 +208,10 @@ void loop() {
   interrupts();
 
   if(safelatchinput==1){
-    delay(10); // stop for a moment debounce
+    delay(50); // stop for a moment debounce
     
     noInterrupts();
+
     latchinput = 0;
     safelatchinput = 0;
     interrupts();
@@ -216,6 +220,9 @@ void loop() {
       Serial.print("unlatch" );
       Serial.println("" );
     #else
+      
+      setButton(safeRotMoving,0 );  
+      /*
       for(byte i=18;i<=25;i++){
         setButton(i, 0);  
         delay(2);
@@ -223,7 +230,7 @@ void loop() {
       for(byte i=0;i<=7;i++){
         setButton(i, 0);  
         delay(2);
-      }
+      }*/
       
     #endif
   }
